@@ -68,6 +68,16 @@ int main (int argc, char* argv[])
                 if ((file_size - offset) < length) {
                     length = file_size - offset;
                 }
+                f_address = mmap(NULL, length, PROT_READ, MAP_SHARED, file_fd, offset);
+                k_address = mmap(NULL, length, PROT_WRITE, MAP_SHARED, dev_fd, 0);
+                memcpy(kernel_address, file_address, length);
+                offset += length;
+                ioctl(dev_fd, 0x12345678, length);
+                int cnt;
+                for(cnt = 0; PAGE_SIZE * cnt < length; cnt++)
+                    ioctl(dev_fd, 0, file_address + PAGE_SIZE * cnt);
+                munmap(file_address, length);
+                munmap(kernel_address, length);
             }
             break;
 	}
